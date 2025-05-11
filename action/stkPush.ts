@@ -17,7 +17,7 @@ export const sendStkPush = async (body: Params) => {
 
   const { mpesa_number: phoneNumber, amount } = body;
   try {
-    //generate authorization token
+    //generate key card to get authorization token
     const auth: string = Buffer.from(
       `${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}`
     ).toString("base64");
@@ -32,7 +32,8 @@ export const sendStkPush = async (body: Params) => {
     );
 
     const token = resp.data.access_token;
-
+    console.log("Auth Header:", `Basic ${auth}`);
+    console.log("Token:", token);
     const cleanedNumber = phoneNumber.replace(/\D/g, "");
 
     const formattedPhone = `254${cleanedNumber.slice(-9)}`;
@@ -49,19 +50,20 @@ export const sendStkPush = async (body: Params) => {
     const password: string = Buffer.from(
       process.env.MPESA_SHORTCODE! + process.env.MPESA_PASSKEY + timestamp
     ).toString("base64");
-    console.log("STK Payload:", {
-      BusinessShortCode: process.env.MPESA_SHORTCODE,
-      Password: password,
-      Timestamp: timestamp,
-      TransactionType: "CustomerPayBillOnline",
-      Amount: amount,
-      PartyA: formattedPhone,
-      PartyB: process.env.MPESA_SHORTCODE,
-      PhoneNumber: formattedPhone,
-      CallBackURL: process.env.MPESA_CALLBACK_URL,
-      AccountReference: phoneNumber,
-      TransactionDesc: "anything here",
-    });
+
+    //console.log("STK Payload:", {
+    //   BusinessShortCode: process.env.MPESA_SHORTCODE,
+    //   Password: password,
+    //   Timestamp: timestamp,
+    //   TransactionType: "CustomerPayBillOnline",
+    //   Amount: amount,
+    //   PartyA: formattedPhone,
+    //   PartyB: process.env.MPESA_SHORTCODE,
+    //   PhoneNumber: formattedPhone,
+    //   CallBackURL: process.env.MPESA_CALLBACK_URL,
+    //   AccountReference: phoneNumber,
+    //   TransactionDesc: "anything here",
+    // });
 
     const response = await axios.post(
       `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
